@@ -1,0 +1,48 @@
+public virtual void SplitRange(List<double> touchdata,out double peak,out double valley)
+{
+    var maxs=new List<double>();
+    var mins=new List<double>();
+    bool findpeak = false;
+    bool findvalley = false;
+    peak = 0;
+    valley = 0;
+    var count = touchdata.Count;
+    for(int i=0;i< count; i+=100)
+    {
+        var range = touchdata.Skip(i).Take(100);
+        if (range.Count() > 0)
+        {
+            maxs.Add(range.Max());
+            mins.Add(range.Min());
+        }
+        if (maxs.Count > 3 && mins.Count > 3)
+        {
+            if (!findpeak)
+            {
+                for (int j = 1; j < maxs.Count - 1; j++)
+                {
+                    if (maxs[j - 1] < maxs[j] && maxs[j + 1] < maxs[j])
+                    {
+                        peak = maxs[j];
+                        findpeak = true;
+                    }
+                }
+            }
+            if (!findvalley)
+            {
+                for (int j = 1; j < mins.Count - 1; j++)
+                {
+                    if (mins[j - 1] > mins[j] && mins[j + 1] > mins[j])
+                    {
+                        valley = mins[j];
+                        findvalley = true;
+                    }
+                }
+            }
+            maxs.RemoveAt(0);
+            mins.RemoveAt(0);
+        }
+        if (peak != 0 && valley != 0)
+            break;
+    }
+}
