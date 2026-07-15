@@ -1,29 +1,52 @@
 🚀 算法核心
-csharp
+/// <summary>
+/// 分区滚动极值检测算法
+/// 灵感来源：微积分分割思想 + LLM MoE架构
+/// </summary>
+/// <param name="touchdata">输入数据列表</param>
+/// <param name="peak">输出：波峰值</param>
+/// <param name="valley">输出：波谷值</param>
 public virtual void SplitRange(
     List<double> touchdata, 
     out double peak, 
     out double valley)
 {
+    // 存储每个分区的最大值和最小值
     var maxs = new List<double>();
     var mins = new List<double>();
+    
+    // 标记是否已找到
     bool findpeak = false;
     bool findvalley = false;
+    
+    // 初始化输出
     peak = 0;
     valley = 0;
-    var count = touchdata.Count;
     
-    for (int i = 0; i < count; i += 100)
+    int count = touchdata.Count;
+    int segmentSize = 100;  // 分区大小
+    
+    // ========================================
+    // 第1层：分区统计（数据压缩）
+    // 每100个点提取1个Max + 1个Min
+    // ========================================
+    for (int i = 0; i < count; i += segmentSize)
     {
-        var range = touchdata.Skip(i).Take(100);
+        // 提取当前分区的数据
+        var range = touchdata.Skip(i).Take(segmentSize);
         if (range.Count() > 0)
         {
             maxs.Add(range.Max());
             mins.Add(range.Min());
         }
         
+        // ========================================
+        // 第2层：滚动窗口 + 趋势检测
+        // 只保留最近3个分区，检测峰谷
+        // ========================================
         if (maxs.Count > 3 && mins.Count > 3)
         {
+            // 🔍 检测波峰：中间值 > 左右值
             if (!findpeak)
             {
                 for (int j = 1; j < maxs.Count - 1; j++)
@@ -32,10 +55,12 @@ public virtual void SplitRange(
                     {
                         peak = maxs[j];
                         findpeak = true;
+                        break;  // 找到就退出
                     }
                 }
             }
             
+            // 🔍 检测波谷：中间值 < 左右值
             if (!findvalley)
             {
                 for (int j = 1; j < mins.Count - 1; j++)
@@ -44,14 +69,20 @@ public virtual void SplitRange(
                     {
                         valley = mins[j];
                         findvalley = true;
+                        break;  // 找到就退出
                     }
                 }
             }
             
+            // 移除最旧的分区数据（保持最多3个）
             maxs.RemoveAt(0);
             mins.RemoveAt(0);
         }
         
+        // ========================================
+        // 第3层：提前终止
+        // 找到波峰和波谷后立即返回
+        // ========================================
         if (peak != 0 && valley != 0)
             break;
     }
