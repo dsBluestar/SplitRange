@@ -1,21 +1,13 @@
 🚀 算法核心
-/// <summary>
-/// 分区滚动极值检测算法
-/// 灵感来源：微积分分割思想 + LLM MoE架构
-/// </summary>
-/// <param name="touchdata">输入数据列表</param>
-/// <param name="peak">输出：波峰值</param>
-/// <param name="valley">输出：波谷值</param>
-public virtual void SplitRange(
+
+    // 标记是否已找到
+    public virtual void SplitRange(
     List<double> touchdata, 
     out double peak, 
     out double valley)
-{
-    // 存储每个分区的最大值和最小值
+     {
     var maxs = new List<double>();
     var mins = new List<double>();
-    
-    // 标记是否已找到
     bool findpeak = false;
     bool findvalley = false;
     
@@ -86,7 +78,7 @@ public virtual void SplitRange(
         if (peak != 0 && valley != 0)
             break;
     }
-}
+    }
 🎯 设计理念
 算法思想溯源
 本算法的灵感来源于三个领域的深度思考：
